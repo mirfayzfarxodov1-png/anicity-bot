@@ -1,0 +1,43 @@
+# Papkalarni yaratish
+mkdir -p .github/workflows
+
+# Workflow faylini yaratish
+cat > .github/workflows/deploy.yml << 'EOF'
+name: Deploy Bot
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install aiogram==3.5.0
+        pip install aiosqlite==0.19.0
+        pip install python-dotenv==1.0.0
+        pip install aiohttp==3.9.0
+    
+    - name: Create .env file
+      run: |
+        echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
+        echo "ADMINS=${{ secrets.ADMINS }}" >> .env
+        echo "MAIN_CHANNEL=${{ secrets.MAIN_CHANNEL }}" >> .env
+        echo "BASE_CHANNEL_ID=${{ secrets.BASE_CHANNEL_ID }}" >> .env
+    
+    - name: Run bot
+      run: python Deploy.py
+EOF
